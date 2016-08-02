@@ -3,6 +3,7 @@ package httptool
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -87,7 +88,7 @@ func respJson(resp *http.Response, obj interface{}) error {
 	//json Unmarshal
 	json_err := json.Unmarshal(resp_body, obj)
 	if json_err != nil {
-		return json_err
+		return errors.New(json_err.Error() + ":::" + string(resp_body))
 	} else {
 		return nil
 	}
