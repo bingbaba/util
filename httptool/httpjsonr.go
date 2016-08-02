@@ -13,6 +13,17 @@ type JsonrResponse struct {
 	} `json:"jsonr"`
 }
 
+func HttpDoJsonr(req *http.Request, obj interface{}) error {
+	//http GET
+	resp, client_err := httpclient.Do(req)
+	if client_err != nil {
+		return client_err
+	}
+	defer resp.Body.Close()
+
+	return RespJsonr(resp, obj)
+}
+
 func RespJsonr(resp *http.Response, obj interface{}) error {
 	//result
 	resp_body, read_err := ioutil.ReadAll(resp.Body)
