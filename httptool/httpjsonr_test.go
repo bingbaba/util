@@ -5,7 +5,9 @@ import (
 )
 
 type TestJsonrResp struct {
-	Order int `json:"targetOrder"`
+	Data struct {
+		Order int `json:"targetOrder"`
+	} `json:"data"`
 }
 
 func TestRespJsonr(t *testing.T) {

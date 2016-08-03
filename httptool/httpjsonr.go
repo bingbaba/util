@@ -8,9 +8,7 @@ import (
 )
 
 type JsonrResponse struct {
-	JsonR struct {
-		Data interface{} `json:"data"`
-	} `json:"jsonr"`
+	JsonR interface{} `json:"jsonr"`
 }
 
 func HttpDoJsonr(req *http.Request, obj interface{}) error {
@@ -56,7 +54,7 @@ func respjsonr(resp_body []byte, obj interface{}) error {
 
 	//json Unmarshal
 	r := &JsonrResponse{}
-	r.JsonR.Data = obj
+	r.JsonR = obj
 	json_err := json.Unmarshal(resp_body[starti:bodylen-len(jsonr_key)-2], r)
 	if json_err != nil {
 		return errors.New(json_err.Error() + ":::" + string(resp_body))
