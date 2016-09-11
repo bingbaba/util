@@ -4,17 +4,23 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	//"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
+	"net/url"
 	"time"
 )
 
 var (
-	httpclient *http.Client
+	httpclient    *http.Client
+	GCurCookieJar *cookiejar.Jar
 )
 
 func init() {
+	GCurCookieJar, _ = cookiejar.New(nil)
+
 	timeout := 30 * time.Second
 	httpclient = &http.Client{
 		Transport: &http.Transport{
@@ -26,7 +32,34 @@ func init() {
 			ResponseHeaderTimeout: 30 * time.Second,
 			MaxIdleConnsPerHost:   100,
 		},
+		Jar: GCurCookieJar,
 	}
+
+}
+
+func SaveCookiesToFile(u *url.URL, filename string) error {
+	cookies := GCurCookieJar.Cookies(u)
+	data, err := json.Marshal(cookies)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, data, 0644)
+}
+
+func LoadCookies(u *url.URL, filename string) error {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	var cookies []*http.Cookie
+	err = json.Unmarshal(data, &cookies)
+	if err != nil {
+		return err
+	}
+	GCurCookieJar.SetCookies(u, cookies)
+
+	return nil
 }
 
 func HttpGetJson(req_url string, obj interface{}) error {
@@ -41,7 +74,7 @@ func HttpGetJson(req_url string, obj interface{}) error {
 }
 
 func HttpDoJson(req *http.Request, obj interface{}) error {
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	//http GET
 	resp, client_err := httpclient.Do(req)
@@ -51,6 +84,16 @@ func HttpDoJson(req *http.Request, obj interface{}) error {
 	defer resp.Body.Close()
 
 	return respJson(resp, obj)
+}
+
+func HttpDo(req *http.Request) (*http.Response, error) {
+	//http Do
+	resp, client_err := httpclient.Do(req)
+	if client_err != nil {
+		return nil, client_err
+	}
+	defer resp.Body.Close()
+	return resp, nil
 }
 
 func HttpPostJson(req_url string, body_i, obj interface{}) error {
