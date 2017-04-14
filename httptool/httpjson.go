@@ -37,6 +37,21 @@ func init() {
 
 }
 
+func SetHttpClientTimeOut(timeout time.Duration) {
+	httpclient = &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   timeout,
+				KeepAlive: 90 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   timeout,
+			ResponseHeaderTimeout: timeout,
+			MaxIdleConnsPerHost:   100,
+		},
+		Jar: GCurCookieJar,
+	}
+}
+
 func SaveCookiesToFile(u *url.URL, filename string) error {
 	cookies := GCurCookieJar.Cookies(u)
 	data, err := json.Marshal(cookies)
