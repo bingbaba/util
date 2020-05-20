@@ -2,6 +2,7 @@ package httptool
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	//"fmt"
@@ -31,6 +32,7 @@ func init() {
 			TLSHandshakeTimeout:   10 * time.Second,
 			ResponseHeaderTimeout: 30 * time.Second,
 			MaxIdleConnsPerHost:   100,
+			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		},
 		Jar: GCurCookieJar,
 	}
