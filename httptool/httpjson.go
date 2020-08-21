@@ -109,7 +109,7 @@ func HttpDo(req *http.Request) (*http.Response, error) {
 	if client_err != nil {
 		return nil, client_err
 	}
-	defer resp.Body.Close()
+	//defer resp.Body.Close()
 	return resp, nil
 }
 
